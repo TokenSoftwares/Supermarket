@@ -1,0 +1,124 @@
+<div class="grid">
+  <!-- Left: scanning + cart -->
+  <div class="left">
+    <mat-card class="scan-card">
+      <div class="scan-row">
+        <mat-form-field appearance="outline" class="barcode">
+          <mat-label>Barcode</mat-label>
+          <input
+            matInput
+            #barcodeInput
+            [(ngModel)]="barcode"
+            (keyup.enter)="addByBarcode()"
+            placeholder="Scan and press Enter"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="qty">
+          <mat-label>Qty</mat-label>
+          <input matInput type="number" min="1" [(ngModel)]="qty" />
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" (click)="addByBarcode()" [disabled]="loading">
+          Add
+        </button>
+      </div>
+    </mat-card>
+
+    <mat-card class="cart-card">
+      <div class="cart-header">
+        <h3>Cart</h3>
+        <button mat-button (click)="cart.clear()" [disabled]="cart.items.length === 0">
+          Clear
+        </button>
+      </div>
+
+      <table mat-table [dataSource]="cart.items" class="table">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Product</th>
+          <td mat-cell *matCellDef="let item">{{ item.product.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="unitPrice">
+          <th mat-header-cell *matHeaderCellDef>Unit</th>
+          <td mat-cell *matCellDef="let item">{{ item.product.price | number: '1.2-2' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="qty">
+          <th mat-header-cell *matHeaderCellDef>Qty</th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-icon-button (click)="cart.dec(item.product.id)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="qty-val">{{ item.quantity }}</span>
+            <button mat-icon-button (click)="cart.inc(item.product.id)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="discount">
+          <th mat-header-cell *matHeaderCellDef>Discount</th>
+          <td mat-cell *matCellDef="let item">
+            <mat-form-field appearance="outline" class="discount">
+              <input
+                matInput
+                type="number"
+                min="0"
+                [ngModel]="item.discount"
+                (ngModelChange)="setDiscount(item, $event)"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lineTotal">
+          <th mat-header-cell *matHeaderCellDef>Total</th>
+          <td mat-cell *matCellDef="let item">{{ lineTotal(item) | number: '1.2-2' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-button color="warn" (click)="cart.remove(item.product.id)">Remove</button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </mat-card>
+  </div>
+
+  <!-- Right: totals + payment + checkout -->
+  <div class="right">
+    <mat-card class="summary-card">
+      <h3>Summary</h3>
+
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <span>{{ cart.subtotal() | number: '1.2-2' }}</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="pay">
+        <mat-label>Payment</mat-label>
+        <mat-select [(ngModel)]="paymentMethod">
+          <mat-option value="CASH">CASH</mat-option>
+          <mat-option value="CARD">CARD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="accent"
+        class="checkout"
+        (click)="checkout()"
+        [disabled]="checkoutLoading || cart.items.length === 0"
+      >
+        Checkout
+      </button>
+
+      <p class="tip">Tip: keep scanning — the barcode field stays focused.</p>
+    </mat-card>
+  </div>
+</div>

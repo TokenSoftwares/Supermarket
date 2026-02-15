@@ -1,0 +1,20 @@
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand {
+  font-weight: 600;
+}
+.spacer {
+  flex: 1;
+}
+.app-container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hint {
+  font-size: 12px;
+  opacity: 0.85;
+}
